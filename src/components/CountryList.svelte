@@ -1,4 +1,5 @@
 <script lang="ts">
+  import AndroidPromo from './AndroidPromo.svelte'
   import { store } from '../lib/store.svelte'
   import { computeStats } from '../lib/stats'
   import { CONTINENTS, TERRITORIES, normalize, territoryName } from '../lib/territories'
@@ -40,6 +41,8 @@
     <h1>{store.t('countries.title')}</h1>
     <span class="count">{store.t('countries.visitedOf', { n: stats.visitedCountries, total: stats.totalCountries })}</span>
   </div>
+
+  <AndroidPromo dismissible />
 
   <input class="search" type="search" placeholder={store.t('countries.search')} bind:value={query} />
 

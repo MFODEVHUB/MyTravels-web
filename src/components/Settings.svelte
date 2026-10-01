@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import AndroidPromo from './AndroidPromo.svelte'
   import { BackupError, exportBackup, parseBackup } from '../lib/backup'
   import { computeStats } from '../lib/stats'
   import { store } from '../lib/store.svelte'
@@ -75,6 +76,8 @@
 
 <div class="page">
   <h1>{store.t('settings.title')}</h1>
+
+  <AndroidPromo />
 
   <section>
     <h2>{store.t('settings.language')}</h2>

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 — 2026-10-02
+
+- Encart « MyTravels pour Android » en haut de la liste des pays (fermable) et des réglages, avec un lien vers Google Play activable dès que la fiche est publique (« Bientôt sur Google Play » d'ici là)
+- Correction de l'icône de l'application web (favicon, icône installable, icône Apple) : elle utilise désormais le vrai logo de MyTravels
+
 ## 0.1.1 — 2026-10-02
 
 Correctif de déploiement : le site affichait un écran blanc sur GitHub Pages.

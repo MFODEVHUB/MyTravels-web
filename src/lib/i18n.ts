@@ -60,6 +60,11 @@ const fr = {
   'settings.aboutText':
     'Version web de MyTravels, l’application Android de suivi de voyages. Cette version est gratuite et fonctionne hors ligne une fois installée.',
   'settings.feedback': 'Une remarque ou un bug ?',
+  'promo.title': 'MyTravels pour Android',
+  'promo.text': 'L’application complète : badges, statistiques, villes, modes de partage et sauvegarde compatible avec cette version web.',
+  'promo.cta': 'Disponible sur Google Play',
+  'promo.soon': 'Bientôt sur Google Play',
+  'promo.dismiss': 'Masquer',
   'common.cancel': 'Annuler',
   'common.confirm': 'Confirmer',
 } as const
@@ -126,6 +131,11 @@ const en: Record<MessageKey, string> = {
   'settings.aboutText':
     'Web version of MyTravels, the Android travel tracker. This version is free and works offline once installed.',
   'settings.feedback': 'A remark or a bug?',
+  'promo.title': 'MyTravels for Android',
+  'promo.text': 'The full app: badges, statistics, cities, sharing modes and backups compatible with this web version.',
+  'promo.cta': 'Get it on Google Play',
+  'promo.soon': 'Coming soon on Google Play',
+  'promo.dismiss': 'Dismiss',
   'common.cancel': 'Cancel',
   'common.confirm': 'Confirm',
 }
