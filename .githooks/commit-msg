@@ -1,0 +1,18 @@
+#!/bin/sh
+# Interdit toute trace d'assistant IA dans les messages de commit.
+# Activation : git config core.hooksPath .githooks
+msg="$1"
+
+if grep -qiE '^[[:space:]]*Co-Authored-By:' "$msg"; then
+    echo "commit-msg refusé : ligne 'Co-Authored-By:' interdite dans ce dépôt." >&2
+    echo "Retire-la du message de commit." >&2
+    exit 1
+fi
+
+if grep -qiE 'c[l]aude' "$msg"; then
+    echo "commit-msg refusé : le message contient le nom d'un assistant IA." >&2
+    echo "Aucune mention d'assistant IA ne doit apparaître sur Git." >&2
+    exit 1
+fi
+
+exit 0

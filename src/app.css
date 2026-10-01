@@ -1,0 +1,80 @@
+/* Palette alignée sur l'app Android (ui/theme/Color.kt, WorldMapView.kt). */
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-variant: #f3f4f6;
+  --border: #e5e7eb;
+  --on-surface: #111827;
+  --on-surface-var: #6b7280;
+  --primary: #5c6bc0;
+  --on-primary: #ffffff;
+
+  --map-sea: #92c5d9;
+  --map-border: #ffffff;
+  --map-none: #dde2e7;
+  --map-visited: #10b981;
+  --map-wishlist: #e5484d;
+  --map-highlight: #4338ca;
+}
+
+:root[data-theme='dark'] {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --surface-variant: #2a2a2a;
+  --border: #3a3a3a;
+  --on-surface: #e5e7eb;
+  --on-surface-var: #9ca3af;
+  --primary: #7986cb;
+
+  --map-sea: #121212;
+  --map-border: #2a2a2a;
+  --map-none: #4b5563;
+  --map-highlight: #818cf8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--on-surface);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn {
+  padding: 11px 18px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--on-surface);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
