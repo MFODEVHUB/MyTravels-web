@@ -3,7 +3,9 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// GitHub Pages sert le site sous /<nom-du-dépôt>/ : le workflow de déploiement fournit BASE_PATH.
 export default defineConfig({
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     svelte(),
     VitePWA({
@@ -15,8 +17,6 @@ export default defineConfig({
         short_name: 'MyTravels',
         description: 'Suivez les pays que vous avez visités.',
         lang: 'fr',
-        start_url: '/',
-        scope: '/',
         display: 'standalone',
         background_color: '#121212',
         theme_color: '#5c6bc0',

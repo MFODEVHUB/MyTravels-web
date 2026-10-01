@@ -1,6 +1,6 @@
 # MyTravels Web
 
-![version](https://img.shields.io/badge/version-0.1-5c6bc0)
+![version](https://img.shields.io/badge/version-0.1.1-5c6bc0)
 
 🇫🇷 [Français](#français) · 🇬🇧 [English](#english)
 
@@ -12,7 +12,7 @@ Version web (PWA) de **MyTravels**, l'application Android de suivi de voyages. E
 
 **Gratuite, sans compte, sans serveur** : les données restent dans le navigateur (IndexedDB) et s'échangent avec l'app Android via le même fichier de sauvegarde JSON.
 
-### Fonctionnalités (v0.1)
+### Fonctionnalités
 
 - Carte du monde interactive (zoom, déplacement, pincement) avec noms de pays, même projection que l'app Android
 - Vue « Régions » : 50 États américains, 14 régions grecques, 16 régions marocaines (statut propre à chaque région)
@@ -45,7 +45,7 @@ Web (PWA) version of **MyTravels**, the Android travel tracker, for people witho
 
 **Free, no account, no server**: data stays in the browser (IndexedDB) and moves to and from the Android app through the same JSON backup file.
 
-### Features (v0.1)
+### Features
 
 - Interactive world map (zoom, pan, pinch) with country names, same projection as the Android app
 - "Regions" view: 50 US states, 14 Greek and 16 Moroccan regions (each region has its own status)

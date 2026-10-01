@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 2026-10-02
+
+Correctif de déploiement : le site affichait un écran blanc sur GitHub Pages.
+
+- Chemin de base configurable (`BASE_PATH`) : le site fonctionne sous `/MyTravels-web/`, y compris la carte, l'installation PWA et le mode hors ligne
+- Déploiement automatique par GitHub Actions (tests, build, publication) à chaque push sur `main`
+
 ## 0.1 — 2026-10-01
 
 Première version de MyTravels Web (PWA gratuite, sans compte ni serveur).
