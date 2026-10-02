@@ -14,7 +14,6 @@ const fr = {
   'map.zoomIn': 'Zoom avant',
   'map.zoomOut': 'Zoom arrière',
   'map.reset': 'Vue d’ensemble',
-  'map.visitedCount': '{n} pays visités',
   'map.viewCountries': 'Pays',
   'map.viewRegions': 'Régions',
   'countries.title': 'Pays',
@@ -89,7 +88,25 @@ const fr = {
   'sync.lastSync': 'Dernière synchronisation : {time}',
   'sync.never': 'pas encore',
   'sync.result.created': 'Sauvegarde créée dans votre Drive.',
-  'sync.result.pulled': 'Récupéré depuis votre Drive : {countries} pays, {regions} régions, {cities} villes.',
+  'sync.result.pulled': 'Récupéré depuis votre Drive : {list}.',
+  'sync.item.countries.visited.one': '{n} pays visité',
+  'sync.item.countries.visited.other': '{n} pays visités',
+  'sync.item.countries.wishlist.one': '{n} pays à visiter',
+  'sync.item.countries.wishlist.other': '{n} pays à visiter',
+  'sync.item.countries.removed.one': '{n} pays retiré',
+  'sync.item.countries.removed.other': '{n} pays retirés',
+  'sync.item.regions.visited.one': '{n} région visitée',
+  'sync.item.regions.visited.other': '{n} régions visitées',
+  'sync.item.regions.wishlist.one': '{n} région à visiter',
+  'sync.item.regions.wishlist.other': '{n} régions à visiter',
+  'sync.item.regions.removed.one': '{n} région retirée',
+  'sync.item.regions.removed.other': '{n} régions retirées',
+  'sync.item.cities.visited.one': '{n} ville visitée',
+  'sync.item.cities.visited.other': '{n} villes visitées',
+  'sync.item.cities.wishlist.one': '{n} ville à visiter',
+  'sync.item.cities.wishlist.other': '{n} villes à visiter',
+  'sync.item.cities.removed.one': '{n} ville retirée',
+  'sync.item.cities.removed.other': '{n} villes retirées',
   'sync.error.corrupt': 'Le fichier de sauvegarde du Drive est illisible : rien n’a été modifié.',
   'sync.error.auth': 'Connexion Google impossible ({detail}).',
   'sync.authHint':
@@ -125,7 +142,6 @@ const en: Record<MessageKey, string> = {
   'map.zoomIn': 'Zoom in',
   'map.zoomOut': 'Zoom out',
   'map.reset': 'Reset view',
-  'map.visitedCount': '{n} countries visited',
   'map.viewCountries': 'Countries',
   'map.viewRegions': 'Regions',
   'countries.title': 'Countries',
@@ -200,7 +216,25 @@ const en: Record<MessageKey, string> = {
   'sync.lastSync': 'Last sync: {time}',
   'sync.never': 'not yet',
   'sync.result.created': 'Backup created in your Drive.',
-  'sync.result.pulled': 'Retrieved from your Drive: {countries} countries, {regions} regions, {cities} cities.',
+  'sync.result.pulled': 'Retrieved from your Drive: {list}.',
+  'sync.item.countries.visited.one': '{n} country visited',
+  'sync.item.countries.visited.other': '{n} countries visited',
+  'sync.item.countries.wishlist.one': '{n} country to visit',
+  'sync.item.countries.wishlist.other': '{n} countries to visit',
+  'sync.item.countries.removed.one': '{n} country removed',
+  'sync.item.countries.removed.other': '{n} countries removed',
+  'sync.item.regions.visited.one': '{n} region visited',
+  'sync.item.regions.visited.other': '{n} regions visited',
+  'sync.item.regions.wishlist.one': '{n} region to visit',
+  'sync.item.regions.wishlist.other': '{n} regions to visit',
+  'sync.item.regions.removed.one': '{n} region removed',
+  'sync.item.regions.removed.other': '{n} regions removed',
+  'sync.item.cities.visited.one': '{n} city visited',
+  'sync.item.cities.visited.other': '{n} cities visited',
+  'sync.item.cities.wishlist.one': '{n} city to visit',
+  'sync.item.cities.wishlist.other': '{n} cities to visit',
+  'sync.item.cities.removed.one': '{n} city removed',
+  'sync.item.cities.removed.other': '{n} cities removed',
   'sync.error.corrupt': 'The backup file in your Drive is unreadable: nothing was changed.',
   'sync.error.auth': 'Google sign-in failed ({detail}).',
   'sync.authHint':
@@ -226,6 +260,12 @@ export function translate(lang: Lang, key: MessageKey, params?: Record<string, s
   let text: string = dictionaries[lang][key]
   if (params) for (const [k, v] of Object.entries(params)) text = text.replaceAll(`{${k}}`, String(v))
   return text
+}
+
+/** Libellé accordé en nombre : cherche `<clé>.one` ou `<clé>.other` selon la règle de pluriel de la langue. */
+export function translateCount(lang: Lang, base: string, n: number): string {
+  const form = new Intl.PluralRules(lang).select(n) === 'one' ? 'one' : 'other'
+  return translate(lang, `${base}.${form}` as MessageKey, { n })
 }
 
 export const detectLang = (): Lang =>

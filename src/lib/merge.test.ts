@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyImport, diffStates, mergeStates, statesEqual } from './merge'
+import { applyImport, diffStates, isEmptyDiff, mergeStates, statesEqual } from './merge'
 import { emptyState, type AppState } from './types'
 
 const state = (p: Partial<AppState>): AppState => ({ ...emptyState(), ...p })
@@ -66,13 +66,36 @@ describe('mergeStates', () => {
 })
 
 describe('diffStates', () => {
-  it('compte ce qui change, suppressions comprises, sans compter les simples changements de date', () => {
+  it('classe ce qui change par nouveau statut (visité, à visiter, retiré), sans compter les changements de date', () => {
     const before = state({ countries: { FR: { status: 'VISITED', updatedAt: 1 }, JP: { status: 'VISITED', updatedAt: 1 } } })
     const after = state({
       countries: { FR: { status: 'VISITED', updatedAt: 99 }, JP: { status: 'NONE', updatedAt: 99 }, DE: { status: 'VISITED', updatedAt: 99 } },
       regions: [{ code: 'US-CA', status: 'VISITED', updatedAt: 99 }],
     })
-    expect(diffStates(before, after)).toEqual({ countries: 2, regions: 1, cities: 0 })
+    expect(diffStates(before, after)).toEqual({
+      countries: { visited: 1, wishlist: 0, removed: 1 },
+      regions: { visited: 1, wishlist: 0, removed: 0 },
+      cities: { visited: 0, wishlist: 0, removed: 0 },
+    })
+  })
+
+  it('distingue les pays, régions et villes « à visiter »', () => {
+    const before = state({})
+    const after = state({
+      countries: { JP: { status: 'WISHLIST', updatedAt: 1 }, FR: { status: 'VISITED', updatedAt: 1 }, IT: { status: 'WISHLIST', updatedAt: 1 } },
+      regions: [{ code: 'US-CA', status: 'WISHLIST', updatedAt: 1 }],
+      cities: [
+        { countryCode: 'JP', name: 'Kyoto', status: 'WISHLIST' },
+        { countryCode: 'FR', name: 'Lyon', status: 'VISITED' },
+        { countryCode: 'FR', name: 'Nice', status: 'NONE' },
+      ],
+    })
+    const diff = diffStates(before, after)
+    expect(diff.countries).toEqual({ visited: 1, wishlist: 2, removed: 0 })
+    expect(diff.regions).toEqual({ visited: 0, wishlist: 1, removed: 0 })
+    expect(diff.cities).toEqual({ visited: 1, wishlist: 1, removed: 0 })
+    expect(isEmptyDiff(diff)).toBe(false)
+    expect(isEmptyDiff(diffStates(after, after))).toBe(true)
   })
 })
 

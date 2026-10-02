@@ -4,7 +4,7 @@
   import ImportDialog from './ImportDialog.svelte'
   import SyncCard from './SyncCard.svelte'
   import { BackupError, exportBackup, parseBackup } from '../lib/backup'
-  import { applyImport, diffStates, type ImportMode } from '../lib/merge'
+  import { applyImport, countOf, diffStates, type ImportMode } from '../lib/merge'
   import { store } from '../lib/store.svelte'
   import { sync } from '../lib/sync.svelte'
   import { emptyState, type AppState, type Lang, type ThemePref } from '../lib/types'
@@ -66,8 +66,8 @@
     incoming = null
     message = {
       text: store.t(mode === 'merge' ? 'settings.importedMerge' : 'settings.imported', {
-        n: mode === 'merge' ? diff.countries : Object.values(next.countries).filter((c) => c.status === 'VISITED').length,
-        m: diff.regions,
+        n: mode === 'merge' ? countOf(diff.countries) : Object.values(next.countries).filter((c) => c.status === 'VISITED').length,
+        m: countOf(diff.regions),
       }),
       error: false,
     }

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { formatDateTime } from '../lib/format'
+  import { isEmptyDiff } from '../lib/merge'
   import { store } from '../lib/store.svelte'
   import { sync } from '../lib/sync.svelte'
 
@@ -15,7 +16,14 @@
     if (!s) return ''
     const parts: string[] = []
     if (s.created) parts.push(store.t('sync.result.created'))
-    if (s.pulled.countries || s.pulled.regions || s.pulled.cities) parts.push(store.t('sync.result.pulled', { ...s.pulled }))
+    if (!isEmptyDiff(s.pulled)) {
+      const items = (['countries', 'regions', 'cities'] as const).flatMap((kind) =>
+        (['visited', 'wishlist', 'removed'] as const)
+          .filter((status) => s.pulled[kind][status] > 0)
+          .map((status) => store.tc(`sync.item.${kind}.${status}`, s.pulled[kind][status])),
+      )
+      parts.push(store.t('sync.result.pulled', { list: items.join(', ') }))
+    }
     return parts.join(' ')
   })
 

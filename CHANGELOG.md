@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2 — 2026-10-02
+
+- Le compteur « N pays visités » en haut à gauche de la carte est retiré (la future page Stats prendra le relais)
+- Bilan de synchronisation complet : pays, régions et villes visités, à visiter ou retirés, par exemple « Récupéré depuis votre Drive : 2 pays visités, 3 pays à visiter, 1 région visitée… », avec accords au singulier et au pluriel
+- Le message de l'import « Fusionner » utilise le même décompte
+
 ## 0.2.1 — 2026-10-02
 
 - Pastille de synchronisation redessinée en picto compact sur la carte : nuage vert coché (à jour), flèches animées (en cours), nuage barré (hors ligne), « Reconnecter » ou nuage d'alerte rouge (action nécessaire)

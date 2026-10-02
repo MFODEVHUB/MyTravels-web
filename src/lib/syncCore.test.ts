@@ -48,7 +48,7 @@ describe('runSync', () => {
     const drive = fakeDrive(exportBackup(withFr('VISITED', 10)))
     const res = await runSync(emptyState(), drive)
     expect(res.merged.countries.FR.status).toBe('VISITED')
-    expect(res.pulled.countries).toBe(1)
+    expect(res.pulled.countries).toEqual({ visited: 1, wishlist: 0, removed: 0 })
     expect(res.pushed).toBe(false)
     expect(drive.writes).toBe(0)
   })
@@ -74,7 +74,7 @@ describe('runSync', () => {
     const drive = fakeDrive(exportBackup({ ...emptyState(), countries: { FR: { status: 'NONE', updatedAt: 99 } } }))
     const res = await runSync(withFr('VISITED', 10), drive)
     expect(res.merged.countries.FR.status).toBe('NONE')
-    expect(res.pulled.countries).toBe(1)
+    expect(res.pulled.countries).toEqual({ visited: 0, wishlist: 0, removed: 1 })
   })
 
   it('refuse d’écraser un fichier illisible', async () => {

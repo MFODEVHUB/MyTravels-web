@@ -36,28 +36,57 @@ export function mergeStates(local: AppState, remote: AppState): AppState {
   return merged
 }
 
-const effective = (r: CountryRecord | undefined) => `${r?.status ?? 'NONE'}|${r?.visitedAt ?? ''}`
-
-export interface Diff {
-  /** Pays dont le statut ou la date de visite diffère entre les deux états. */
-  countries: number
-  regions: number
-  cities: number
+/** Nombre d'éléments qui passent à chaque statut, ou qui sont retirés (remis à « Non visité »). */
+export interface StatusCounts {
+  visited: number
+  wishlist: number
+  removed: number
 }
 
-/** Ce que `after` change par rapport à `before`, pour afficher « 3 pays récupérés ». */
+export interface Diff {
+  countries: StatusCounts
+  regions: StatusCounts
+  cities: StatusCounts
+}
+
+const noCounts = (): StatusCounts => ({ visited: 0, wishlist: 0, removed: 0 })
+export const countOf = (c: StatusCounts) => c.visited + c.wishlist + c.removed
+export const isEmptyDiff = (d: Diff) => countOf(d.countries) + countOf(d.regions) + countOf(d.cities) === 0
+
+function bump(counts: StatusCounts, status: string) {
+  if (status === 'VISITED') counts.visited++
+  else if (status === 'WISHLIST') counts.wishlist++
+  else counts.removed++
+}
+
+/**
+ * Ce que `after` change par rapport à `before`, classé par nouveau statut (visité, à visiter, retiré), pour
+ * afficher un bilan complet de la synchronisation. Un simple changement de date de visite n'est pas compté.
+ */
 export function diffStates(before: AppState, after: AppState): Diff {
-  let countries = 0
+  const diff: Diff = { countries: noCounts(), regions: noCounts(), cities: noCounts() }
+
   for (const code of new Set([...Object.keys(before.countries), ...Object.keys(after.countries)])) {
-    if (effective(before.countries[code]) !== effective(after.countries[code])) countries++
+    const was = before.countries[code]?.status ?? 'NONE'
+    const now = after.countries[code]?.status ?? 'NONE'
+    if (was !== now) bump(diff.countries, now)
   }
-  const status = (list: RegionEntry[]) => new Map(list.map((r) => [r.code, r.status === 'NONE' ? '' : r.status]))
-  const b = status(before.regions)
-  const a = status(after.regions)
-  let regions = 0
-  for (const code of new Set([...b.keys(), ...a.keys()])) if ((b.get(code) ?? '') !== (a.get(code) ?? '')) regions++
-  const known = new Set(before.cities.map(cityKey))
-  return { countries, regions, cities: after.cities.filter((c) => !known.has(cityKey(c))).length }
+
+  const regionStatus = (list: RegionEntry[]) => new Map(list.map((r) => [r.code, r.status]))
+  const rb = regionStatus(before.regions)
+  const ra = regionStatus(after.regions)
+  for (const code of new Set([...rb.keys(), ...ra.keys()])) {
+    const was = rb.get(code) ?? 'NONE'
+    const now = ra.get(code) ?? 'NONE'
+    if (was !== now) bump(diff.regions, now)
+  }
+
+  const cb = new Map(before.cities.map((c) => [cityKey(c), c.status]))
+  for (const c of after.cities) {
+    const was = cb.get(cityKey(c)) ?? 'NONE'
+    if (was !== c.status && (c.status === 'VISITED' || c.status === 'WISHLIST')) bump(diff.cities, c.status)
+  }
+  return diff
 }
 
 /** Égalité stricte, dates comprises : sert à savoir s'il y a quelque chose à envoyer. */

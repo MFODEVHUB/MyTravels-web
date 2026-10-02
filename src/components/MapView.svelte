@@ -3,7 +3,6 @@
   import { loadMap, MAP_H, MAP_W, type MapShape, type RegionShape } from '../lib/geo'
   import { store } from '../lib/store.svelte'
   import SyncChip from './SyncChip.svelte'
-  import { computeStats } from '../lib/stats'
   import { TERRITORY_BY_CODE, territoryName } from '../lib/territories'
   import type { Selection } from '../lib/types'
 
@@ -46,8 +45,6 @@
   let view = { k: 1, tx: 0, ty: 0 }
   let hitCtx: CanvasRenderingContext2D
   let raf = 0
-
-  const stats = $derived((store.rev, computeStats(store.state)))
 
   const fitK = () => Math.max(width / MAP_W, height / MAP_H, 0.01)
   const zoomRel = () => view.k / fitK()
@@ -448,7 +445,6 @@
     </div>
   {:else}
     <div class="top-left">
-      <div class="badge">{store.t('map.visitedCount', { n: stats.visitedCountries })}</div>
       <SyncChip {onsettings} />
     </div>
     <div class="modes" role="group">
@@ -525,15 +521,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-  }
-  .badge {
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: var(--surface);
-    color: var(--on-surface);
-    font-size: 0.85rem;
-    font-weight: 600;
-    box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
   }
   .modes {
     position: absolute;

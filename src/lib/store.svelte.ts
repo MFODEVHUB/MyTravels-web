@@ -1,6 +1,6 @@
 import { get, set } from 'idb-keyval'
 import { sanitizeState } from './backup'
-import { detectLang, translate, type MessageKey } from './i18n'
+import { detectLang, translate, translateCount, type MessageKey } from './i18n'
 import { emptyState, toVisitStatus, type AppState, type Lang, type ThemePref, type VisitStatus } from './types'
 
 const STATE_KEY = 'mytravels-state'
@@ -52,6 +52,8 @@ class Store {
   }
 
   t = (key: MessageKey, params?: Record<string, string | number>) => translate(this.lang, key, params)
+  /** Texte accordé en nombre (voir `translateCount`). */
+  tc = (base: string, n: number) => translateCount(this.lang, base, n)
 
   statusOf(code: string): VisitStatus {
     return this.state.countries[code]?.status ?? 'NONE'

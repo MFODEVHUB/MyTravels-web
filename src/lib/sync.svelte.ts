@@ -1,7 +1,7 @@
 import { SYNC_PUBLIC } from '../config'
 import { createDriveClient, DriveError, type DriveClient } from './drive'
 import { AuthError, GoogleAuth, type AuthProvider } from './googleAuth'
-import { diffStates, mergeStates, statesEqual, type Diff } from './merge'
+import { diffStates, isEmptyDiff, mergeStates, statesEqual, type Diff } from './merge'
 import { store } from './store.svelte'
 import { deleteRemote, RemoteCorruptError, runSync } from './syncCore'
 import { MockAuth, MockDrive } from './syncMock'
@@ -173,7 +173,7 @@ export class SyncEngine {
       if (touched) this.rerun = true
       this.lastSyncAt = Date.now()
       this.savePrefs(true)
-      if (result.created || result.pulled.countries || result.pulled.regions || result.pulled.cities) {
+      if (result.created || !isEmptyDiff(result.pulled)) {
         this.summary = { created: result.created, pulled: diffStates(current, merged) }
       }
       this.status = 'idle'
