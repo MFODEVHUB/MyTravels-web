@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3 — 2026-10-02
+
+Correctif mobile : toucher un pays ou une région n'ouvrait rien sur navigateur mobile.
+
+- La fiche ne se referme plus toute seule : le « clic fantôme » envoyé par le navigateur mobile après un tap tombait sur son fond et la fermait aussitôt
+- Tolérance plus large au tremblement du doigt lors d'un tap (12 px au lieu de 6 px)
+- Capture du pointeur sécurisée : un refus du navigateur n'interrompt plus le geste
+
 ## 0.1.2 — 2026-10-02
 
 - Encart « MyTravels pour Android » en haut de la liste des pays (fermable) et des réglages, avec un lien vers Google Play activable dès que la fiche est publique (« Bientôt sur Google Play » d'ici là)

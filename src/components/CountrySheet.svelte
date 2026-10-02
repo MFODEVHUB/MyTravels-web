@@ -5,6 +5,21 @@
 
   let { selection, onclose }: { selection: Selection; onclose: () => void } = $props()
 
+  /**
+   * Sur mobile, le navigateur envoie un "clic fantôme" à l'élément qui se trouve sous le doigt une fois le tap
+   * traité : la fiche vient d'apparaître, c'est donc son fond qui le reçoit et la referme aussitôt. On ignore
+   * les clics du fond pendant ce court délai.
+   */
+  const GHOST_CLICK_MS = 450
+  let openedAt = performance.now()
+  $effect(() => {
+    void selection
+    openedAt = performance.now()
+  })
+  const onScrimClick = () => {
+    if (performance.now() - openedAt > GHOST_CLICK_MS) onclose()
+  }
+
   const STATUSES: VisitStatus[] = ['VISITED', 'WISHLIST', 'NONE']
 
   const code = $derived(selection.country)
@@ -43,7 +58,7 @@
 <svelte:window onkeydown={onKeydown} />
 
 {#if territory}
-  <div class="scrim" onclick={onclose} role="presentation"></div>
+  <div class="scrim" onclick={onScrimClick} role="presentation"></div>
   <div class="sheet" role="dialog" aria-modal="true" aria-label={title}>
     <div class="grab" aria-hidden="true"></div>
     <header>

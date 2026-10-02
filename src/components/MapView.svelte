@@ -293,7 +293,7 @@
   // ── Gestes : un doigt = déplacer, deux doigts = pincer, molette = zoom, double-clic = zoom ──
   const pointers = new Map<number, { x: number; y: number }>()
   let pinchDist = 0
-  let downAt = { x: 0, y: 0, t: 0 }
+  let downAt = { x: 0, y: 0, t: 0, slop: 6 }
   let moved = false
 
   function localXY(e: PointerEvent | MouseEvent | WheelEvent) {
@@ -302,11 +302,16 @@
   }
 
   function onPointerDown(e: PointerEvent) {
-    canvas.setPointerCapture(e.pointerId)
+    try {
+      canvas.setPointerCapture(e.pointerId)
+    } catch {
+      /* capture impossible (pointeur déjà libéré) : le geste continue sans */
+    }
     const p = localXY(e)
     pointers.set(e.pointerId, p)
     if (pointers.size === 1) {
-      downAt = { ...p, t: performance.now() }
+      // Un doigt bouge toujours un peu pendant un tap : tolérance plus large qu'à la souris.
+      downAt = { ...p, t: performance.now(), slop: e.pointerType === 'touch' ? 12 : 6 }
       moved = false
     } else {
       moved = true
@@ -321,7 +326,7 @@
     const p = localXY(e)
     pointers.set(e.pointerId, p)
     if (pointers.size === 1) {
-      if (Math.hypot(p.x - downAt.x, p.y - downAt.y) > 6) moved = true
+      if (Math.hypot(p.x - downAt.x, p.y - downAt.y) > downAt.slop) moved = true
       if (moved) {
         view.tx += p.x - prev.x
         view.ty += p.y - prev.y
