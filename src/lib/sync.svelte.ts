@@ -50,6 +50,20 @@ export class SyncEngine {
   /** Type d'erreur ("corrupt", "auth", "generic") et détail. */
   error = $state<{ kind: 'corrupt' | 'auth' | 'generic'; detail: string } | null>(null)
 
+  /**
+   * Point d'état de l'onglet Réglages : rien quand tout va bien, sinon ce qui mérite l'attention.
+   * `busy` = en cours, `alert` = une action de l'utilisateur est nécessaire, `offline` = hors ligne.
+   */
+  dot = $derived<'busy' | 'alert' | 'offline' | null>(
+    this.status === 'syncing' || this.status === 'connecting'
+      ? 'busy'
+      : this.status === 'needs-auth' || this.status === 'error'
+        ? 'alert'
+        : this.status === 'offline'
+          ? 'offline'
+          : null,
+  )
+
   private running = false
   private rerun = false
   private timer: ReturnType<typeof setTimeout> | undefined
@@ -210,3 +224,5 @@ export const sync = new SyncEngine(
   auth,
   useMock ? new MockDrive() : createDriveClient(() => auth.token()),
 )
+// Outil de développement : permet de forcer un état pour vérifier l'interface (retiré du build de production).
+if (useMock) (window as unknown as { __sync: SyncEngine }).__sync = sync

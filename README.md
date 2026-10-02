@@ -1,6 +1,6 @@
 # MyTravels Web
 
-![version](https://img.shields.io/badge/version-0.2.0-5c6bc0)
+![version](https://img.shields.io/badge/version-0.2.1-5c6bc0)
 
 🇫🇷 [Français](#français) · 🇬🇧 [English](#english)
 

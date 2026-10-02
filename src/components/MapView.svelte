@@ -7,7 +7,11 @@
   import { TERRITORY_BY_CODE, territoryName } from '../lib/territories'
   import type { Selection } from '../lib/types'
 
-  let { selection = null, onselect }: { selection?: Selection | null; onselect: (s: Selection) => void } = $props()
+  let {
+    selection = null,
+    onselect,
+    onsettings,
+  }: { selection?: Selection | null; onselect: (s: Selection) => void; onsettings?: () => void } = $props()
 
   const MAX_ZOOM = 40
   /** Même longitude centrale initiale que l'app Android (Europe/Afrique au centre). */
@@ -445,7 +449,7 @@
   {:else}
     <div class="top-left">
       <div class="badge">{store.t('map.visitedCount', { n: stats.visitedCountries })}</div>
-      <SyncChip />
+      <SyncChip {onsettings} />
     </div>
     <div class="modes" role="group">
       <button class:active={mode === 'countries'} aria-pressed={mode === 'countries'} onclick={() => (mode = 'countries')}>

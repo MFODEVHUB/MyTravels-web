@@ -43,7 +43,7 @@
   {#if !store.loaded}
     <div class="boot" role="status"></div>
   {:else if tab === 'map'}
-    <MapView {selection} onselect={(s) => (selection = s)} />
+    <MapView {selection} onselect={(s) => (selection = s)} onsettings={() => (tab = 'settings')} />
   {:else if tab === 'countries'}
     <div class="scroll"><CountryList onselect={(code) => (selection = { country: code })} /></div>
   {:else}
@@ -54,7 +54,10 @@
 <nav>
   {#each TABS as t (t.id)}
     <button class:active={tab === t.id} aria-current={tab === t.id ? 'page' : undefined} onclick={() => (tab = t.id)}>
-      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d={t.icon} fill="currentColor" /></svg>
+      <span class="icon">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d={t.icon} fill="currentColor" /></svg>
+        {#if t.id === 'settings' && sync.dot}<span class="dot {sync.dot}" aria-hidden="true"></span>{/if}
+      </span>
       <span>{t.label()}</span>
     </button>
   {/each}
@@ -100,5 +103,35 @@
   }
   nav button.active {
     color: var(--primary);
+  }
+  .icon {
+    position: relative;
+    display: inline-flex;
+  }
+  /* Point d'état de la synchronisation : absent quand tout va bien. */
+  .dot {
+    position: absolute;
+    top: -1px;
+    right: -3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    box-sizing: content-box;
+  }
+  .dot.alert {
+    background: var(--map-wishlist);
+  }
+  .dot.offline {
+    background: var(--on-surface-var);
+  }
+  .dot.busy {
+    background: var(--primary);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.3;
+    }
   }
 </style>

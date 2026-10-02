@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 — 2026-10-02
+
+- Pastille de synchronisation redessinée en picto compact sur la carte : nuage vert coché (à jour), flèches animées (en cours), nuage barré (hors ligne), « Reconnecter » ou nuage d'alerte rouge (action nécessaire)
+- Au tap sur le picto : mini-fenêtre avec l'état, la dernière synchronisation, « Synchroniser maintenant » ou « Reconnecter », et un accès aux réglages
+- Point d'état sur l'onglet Réglages quand la synchronisation est en cours, hors ligne ou demande une action (absent quand tout est à jour)
+- Message d'aide quand la connexion Google échoue ou que sa fenêtre est refermée : essayer un autre navigateur ou désactiver les extensions de confidentialité
+
 ## 0.2.0 — 2026-10-02
 
 Synchronisation Google Drive (web ↔ web), masquée au public tant que l'application Google n'est pas publiée.

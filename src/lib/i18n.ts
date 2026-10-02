@@ -92,8 +92,11 @@ const fr = {
   'sync.result.pulled': 'Récupéré depuis votre Drive : {countries} pays, {regions} régions, {cities} villes.',
   'sync.error.corrupt': 'Le fichier de sauvegarde du Drive est illisible : rien n’a été modifié.',
   'sync.error.auth': 'Connexion Google impossible ({detail}).',
+  'sync.authHint':
+    'Si la fenêtre Google affichait une erreur, essayez un autre navigateur ou désactivez temporairement les extensions de confidentialité (bloqueurs de publicités, anti-pistage).',
   'sync.error.generic': 'La synchronisation a échoué ({detail}).',
   'sync.chip.label': 'Synchronisation',
+  'sync.openSettings': 'Ouvrir les réglages',
   'import.title': 'Importer une sauvegarde',
   'import.summary': 'Ce fichier contient {n} pays visités et {m} région(s).',
   'import.merge': 'Fusionner avec mes données',
@@ -200,8 +203,11 @@ const en: Record<MessageKey, string> = {
   'sync.result.pulled': 'Retrieved from your Drive: {countries} countries, {regions} regions, {cities} cities.',
   'sync.error.corrupt': 'The backup file in your Drive is unreadable: nothing was changed.',
   'sync.error.auth': 'Google sign-in failed ({detail}).',
+  'sync.authHint':
+    'If the Google window showed an error, try another browser or temporarily disable privacy extensions (ad blockers, anti-tracking).',
   'sync.error.generic': 'Sync failed ({detail}).',
   'sync.chip.label': 'Sync',
+  'sync.openSettings': 'Open settings',
   'import.title': 'Import a backup',
   'import.summary': 'This file contains {n} visited countries and {m} region(s).',
   'import.merge': 'Merge with my data',

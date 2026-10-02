@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatDateTime } from '../lib/format'
   import { store } from '../lib/store.svelte'
   import { sync } from '../lib/sync.svelte'
 
@@ -6,9 +7,7 @@
   const connected = $derived(sync.status !== 'off')
 
   const lastSync = $derived(
-    sync.lastSyncAt
-      ? new Intl.DateTimeFormat(store.lang, { dateStyle: 'short', timeStyle: 'short' }).format(sync.lastSyncAt)
-      : store.t('sync.never'),
+    sync.lastSyncAt ? formatDateTime(sync.lastSyncAt, store.lang) : store.t('sync.never'),
   )
 
   const resultText = $derived.by(() => {
@@ -26,6 +25,9 @@
     if (!e || e.detail === 'popup_closed') return ''
     return store.t(`sync.error.${e.kind}` as never, { detail: e.detail })
   })
+
+  /** Conseil quand la connexion échoue ou que la fenêtre Google est refermée (une erreur affichée dans cette fenêtre n'est pas visible de la page). */
+  const hintText = $derived(sync.error?.kind === 'auth' ? store.t('sync.authHint') : '')
 
   async function deleteCloud() {
     if (!confirm(store.t('sync.deleteCloudConfirm'))) return
@@ -63,6 +65,7 @@
   {/if}
 
   {#if errorText}<p class="msg error" role="alert">{errorText}</p>{/if}
+  {#if hintText}<p class="msg">{hintText}</p>{/if}
 </section>
 
 <style>

@@ -1,4 +1,4 @@
-import type { AuthProvider } from './googleAuth'
+import { AuthError, type AuthProvider } from './googleAuth'
 import type { DriveClient } from './drive'
 
 /**
@@ -19,7 +19,7 @@ export class MockAuth implements AuthProvider {
   async signIn(interactive: boolean) {
     await delay(400)
     const params = new URLSearchParams(location.search)
-    if (params.has('mockfail')) throw new Error('mock auth failure')
+    if (params.has('mockfail')) throw new AuthError('mock auth failure', params.get('mockfail') || 'popup_closed')
     // Reproduit Safari : sans geste de l'utilisateur, la fenêtre Google est bloquée.
     if (params.has('mocksilentfail') && !interactive) throw new Error('popup blocked')
     this.valid = true
