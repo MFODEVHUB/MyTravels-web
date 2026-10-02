@@ -124,6 +124,7 @@
     <h2>{store.t('settings.about')}</h2>
     <p class="hint">{store.t('settings.aboutText')}</p>
     <p class="hint"><a href="mailto:{FEEDBACK_EMAIL}">{store.t('settings.feedback')}</a></p>
+    <p class="hint small version">{store.t('settings.version', { v: __APP_VERSION__ })}</p>
   </section>
 </div>
 

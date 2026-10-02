@@ -1,11 +1,16 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from 'node:fs'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const { version } = JSON.parse(readFileSync('./package.json', 'utf8')) as { version: string }
+
 // GitHub Pages sert le site sous /<nom-du-dépôt>/ : le workflow de déploiement fournit BASE_PATH.
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
+  // Numéro de version affiché dans les Réglages : une seule source de vérité, package.json.
+  define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [
     svelte(),
     VitePWA({

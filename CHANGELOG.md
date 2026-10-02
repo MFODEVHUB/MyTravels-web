@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 — 2026-10-02
+
+- Numéro de version affiché dans les Réglages (section « À propos »), lu automatiquement depuis `package.json`
+
 ## 0.1.3 — 2026-10-02
 
 Correctif mobile : toucher un pays ou une région n'ouvrait rien sur navigateur mobile.
