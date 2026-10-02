@@ -122,6 +122,21 @@ const fr = {
   'import.replaceHint': 'Efface ce qui n’est pas dans le fichier (et sur vos appareils synchronisés).',
   'settings.importedMerge': 'Sauvegarde fusionnée : {n} pays et {m} région(s) modifiés.',
   'settings.resetConfirmSync': 'Effacer toutes vos données, ici ET sur vos appareils synchronisés ?',
+  'nav.stats': 'Stats',
+  'stats.title': 'Statistiques',
+  'stats.teaser':
+    'Les statistiques détaillées, les badges et l’historique de vos voyages sont disponibles dans l’application Android, bientôt sur Google Play. Ils arriveront aussi dans la version web.',
+  'stats.teaserLive':
+    'Les statistiques détaillées, les badges et l’historique de vos voyages sont disponibles dans l’application Android. Ils arriveront aussi dans la version web.',
+  'apk.pill': 'Application Android',
+  'apk.intro': 'L’expérience complète de MyTravels, gratuite sur Android :',
+  'apk.points.badges': 'Badges et défis à débloquer',
+  'apk.points.stats': 'Statistiques détaillées par continent',
+  'apk.points.share': 'Partage de votre carte en image',
+  'apk.install': 'Installer depuis Google Play',
+  'apk.scan': 'Scannez ce code avec votre téléphone Android pour ouvrir la fiche Google Play.',
+  'apk.later': 'Plus tard',
+  'apk.never': 'Ne plus afficher',
   'common.cancel': 'Annuler',
   'common.confirm': 'Confirmer',
 } as const
@@ -250,6 +265,21 @@ const en: Record<MessageKey, string> = {
   'import.replaceHint': 'Erases what is not in the file (and on your synced devices).',
   'settings.importedMerge': 'Backup merged: {n} countries and {m} region(s) changed.',
   'settings.resetConfirmSync': 'Erase all your data, here AND on your synced devices?',
+  'nav.stats': 'Stats',
+  'stats.title': 'Statistics',
+  'stats.teaser':
+    'Detailed statistics, badges and your travel history are available in the Android app, coming soon on Google Play. They will also come to the web version.',
+  'stats.teaserLive':
+    'Detailed statistics, badges and your travel history are available in the Android app. They will also come to the web version.',
+  'apk.pill': 'Android app',
+  'apk.intro': 'The full MyTravels experience, free on Android:',
+  'apk.points.badges': 'Badges and challenges to unlock',
+  'apk.points.stats': 'Detailed statistics by continent',
+  'apk.points.share': 'Share your map as an image',
+  'apk.install': 'Install from Google Play',
+  'apk.scan': 'Scan this code with your Android phone to open the Google Play page.',
+  'apk.later': 'Later',
+  'apk.never': 'Don’t show again',
   'common.cancel': 'Cancel',
   'common.confirm': 'Confirm',
 }

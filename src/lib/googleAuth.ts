@@ -80,6 +80,9 @@ export class GoogleAuth implements AuthProvider {
       if (saved && saved.expiresAt > Date.now() + SKEW_MS) {
         this.accessToken = saved.token
         this.expiresAt = saved.expiresAt
+      } else if (saved) {
+        // Jeton expiré : on ne le garde pas dans le navigateur (voir la politique de confidentialité).
+        localStorage.removeItem(TOKEN_KEY)
       }
     } catch {
       /* stockage indisponible ou corrompu : on repart sans jeton */

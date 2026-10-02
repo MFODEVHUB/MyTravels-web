@@ -2,6 +2,13 @@
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.mfodevhub.mytravels'
 
 /**
+ * Lien Play avec une provenance (`medium` : carte, pastille, QR…). Le paramètre `referrer` apparaît dans la Play
+ * Console, ce qui permet de mesurer ce qui amène des installations sans aucun traceur sur le site.
+ */
+export const playUrl = (medium: string): string =>
+  `${PLAY_STORE_URL}&referrer=${encodeURIComponent(`utm_source=web&utm_medium=${medium}`)}`
+
+/**
  * À passer à `true` une fois la fiche publique (vérifier que l'URL ne renvoie pas 404) : l'encart
  * affiche alors le lien actif au lieu de « Bientôt sur Google Play ».
  */

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PLAY_STORE_PUBLIC, PLAY_STORE_URL } from '../config'
+  import { PLAY_STORE_PUBLIC, playUrl } from '../config'
   import { store } from '../lib/store.svelte'
 
   const DISMISS_KEY = 'mytravels-promo-dismissed'
@@ -33,7 +33,7 @@
       <h2>{store.t('promo.title')}</h2>
       <p>{store.t('promo.text')}</p>
       {#if PLAY_STORE_PUBLIC}
-        <a class="cta" href={PLAY_STORE_URL} target="_blank" rel="noopener">▶ {store.t('promo.cta')}</a>
+        <a class="cta" href={playUrl('card')} target="_blank" rel="noopener">▶ {store.t('promo.cta')}</a>
       {:else}
         <span class="cta soon">▶ {store.t('promo.soon')}</span>
       {/if}

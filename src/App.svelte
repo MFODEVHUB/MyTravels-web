@@ -1,15 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import AndroidSheet from './components/AndroidSheet.svelte'
   import CountryList from './components/CountryList.svelte'
   import CountrySheet from './components/CountrySheet.svelte'
   import MapView from './components/MapView.svelte'
+  import PromoPill from './components/PromoPill.svelte'
   import Settings from './components/Settings.svelte'
   import { store } from './lib/store.svelte'
   import { sync } from './lib/sync.svelte'
   import type { Selection } from './lib/types'
 
   type Tab = 'map' | 'countries' | 'settings'
-  const TABS: { id: Tab; label: () => string; icon: string }[] = [
+  /** « stats » n'est pas encore un écran : il ouvre une fenêtre qui présente l'application Android. */
+  const TABS: { id: Tab | 'stats'; label: () => string; icon: string }[] = [
     {
       id: 'map',
       label: () => store.t('nav.map'),
@@ -21,6 +24,11 @@
       icon: 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z',
     },
     {
+      id: 'stats',
+      label: () => store.t('nav.stats'),
+      icon: 'M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z',
+    },
+    {
       id: 'settings',
       label: () => store.t('nav.settings'),
       icon: 'M19.4 13a7.5 7.5 0 000-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 00-1.7-1L15 3.3h-4l-.4 2.6a7.6 7.6 0 00-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 000 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 001.7 1l.4 2.6h4l.4-2.6a7.6 7.6 0 001.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z',
@@ -29,6 +37,7 @@
 
   let tab = $state<Tab>('map')
   let selection = $state<Selection | null>(null)
+  let statsOpen = $state(false)
 
   onMount(() => void store.init().then(() => sync.init()))
 
@@ -49,11 +58,13 @@
   {:else}
     <div class="scroll"><Settings /></div>
   {/if}
+  <!-- Toujours montée (son état vit le temps de la session), mais affichée seulement sur la carte. -->
+  <PromoPill active={store.loaded && tab === 'map'} />
 </main>
 
 <nav>
   {#each TABS as t (t.id)}
-    <button class:active={tab === t.id} aria-current={tab === t.id ? 'page' : undefined} onclick={() => (tab = t.id)}>
+    <button class:active={tab === t.id} aria-current={tab === t.id ? 'page' : undefined} onclick={() => (t.id === 'stats' ? (statsOpen = true) : (tab = t.id))}>
       <span class="icon">
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d={t.icon} fill="currentColor" /></svg>
         {#if t.id === 'settings' && sync.dot}<span class="dot {sync.dot}" aria-hidden="true"></span>{/if}
@@ -62,6 +73,10 @@
     </button>
   {/each}
 </nav>
+
+{#if statsOpen}
+  <AndroidSheet variant="stats" onclose={() => (statsOpen = false)} />
+{/if}
 
 {#if selection}
   <CountrySheet {selection} onclose={() => (selection = null)} />

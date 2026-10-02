@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — 2026-10-02
+
+- Onglet « Stats » dans la barre de navigation, comme dans l'application Android : tant que la page n'existe pas sur le web, il ouvre une fenêtre qui présente l'application Android et annonce sa prochaine disponibilité sur Google Play
+- Pastille « Application Android » sur la carte, avec un halo à l'apparition et une fenêtre de présentation : lien direct vers Google Play sur Android, QR code sur ordinateur, rien sur iPhone
+- Affichage discret et plafonné : jamais à la première visite, après un vrai usage (3 pays marqués ou 2 minutes), au plus une fois par semaine et trois fois au total, avec « Plus tard » et « Ne plus afficher »
+- Invisible tant que la fiche Google Play n'est pas publique (interrupteur `PLAY_STORE_PUBLIC`) ; aperçu possible avec `?promo=android`, `?promo=desktop` ou `?promo=ios`
+- Les liens Google Play portent une provenance (carte, pastille, QR, stats) visible dans la Play Console, sans aucun traceur sur le site
+- Le jeton Google expiré est supprimé du navigateur, conformément à la politique de confidentialité
+
 ## 0.2.2 — 2026-10-02
 
 - Le compteur « N pays visités » en haut à gauche de la carte est retiré (la future page Stats prendra le relais)
