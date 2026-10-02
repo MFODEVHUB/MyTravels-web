@@ -16,7 +16,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'icons/apple-touch-icon.png'],
-      workbox: { globPatterns: ['**/*.{js,css,html,png,json,geojson}'] },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,json,geojson}'],
+        // La page de test de synchronisation reste hors de l'application (ni cache hors ligne, ni repli SPA).
+        globIgnores: ['spike.html'],
+        navigateFallbackDenylist: [/spike\.html$/],
+      },
       manifest: {
         name: 'MyTravels',
         short_name: 'MyTravels',

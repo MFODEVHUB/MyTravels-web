@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>Test sync Google Drive</title>
+    <style>
+      :root { color-scheme: light dark; font-family: system-ui, -apple-system, sans-serif; }
+      body { margin: 0; padding: 16px; max-width: 720px; margin-inline: auto; line-height: 1.4; }
+      h1 { font-size: 1.2rem; margin: 0 0 4px; }
+      p.note { margin: 0 0 16px; opacity: 0.7; font-size: 0.85rem; }
+      label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: 0.9rem; }
+      input { width: 100%; box-sizing: border-box; padding: 10px; font: inherit; border-radius: 8px; border: 1px solid #8886; }
+      .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+      button { padding: 10px 14px; font: inherit; font-weight: 600; border-radius: 10px; border: 1px solid #8886; background: #5c6bc0; color: #fff; }
+      button.secondary { background: transparent; color: inherit; }
+      button:disabled { opacity: 0.4; }
+      #status { font-weight: 600; margin: 8px 0; }
+      #log { white-space: pre-wrap; word-break: break-word; font: 0.78rem/1.45 ui-monospace, monospace; background: #8881; border-radius: 10px; padding: 10px; min-height: 160px; }
+      .ok { color: #10b981; } .ko { color: #e5484d; }
+    </style>
+  </head>
+  <body>
+    <h1>Test technique : synchronisation Google Drive</h1>
+    <p class="note">Page de test non liée au site. Elle écrit un petit fichier dans le dossier caché de l'application sur votre Drive, jamais ailleurs.</p>
+
+    <label for="cid">Identifiant client OAuth (Web)</label>
+    <input id="cid" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off" autocapitalize="off" spellcheck="false" />
+
+    <div id="status">Non connecté</div>
+    <div class="row">
+      <button id="btn-connect">1. Se connecter</button>
+      <button id="btn-write" class="secondary" disabled>2. Écrire</button>
+      <button id="btn-read" class="secondary" disabled>3. Lire</button>
+    </div>
+    <div class="row">
+      <button id="btn-renew" class="secondary" disabled>4. Renouveler (avec tap)</button>
+      <button id="btn-renew-auto" class="secondary" disabled>5. Renouveler sans tap (5 s)</button>
+      <button id="btn-delete" class="secondary" disabled>Supprimer le fichier test</button>
+    </div>
+    <div class="row">
+      <button id="btn-copy" class="secondary">Copier le journal</button>
+    </div>
+    <div id="log" role="log"></div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      const SCOPE = 'https://www.googleapis.com/auth/drive.appdata'
+      const FILE_NAME = 'mytravels-spike.json'
+      const $ = (id) => document.getElementById(id)
+      const logEl = $('log')
+      const lines = []
+      let token = null
+      let tokenExpiresAt = 0
+      let fileId = null
+      let client = null
+      let tick = null
+
+      const stamp = () => new Date().toISOString().slice(11, 23)
+      function log(msg, cls) {
+        const line = `[${stamp()}] ${msg}`
+        lines.push(line)
+        const div = document.createElement('div')
+        if (cls) div.className = cls
+        div.textContent = line
+        logEl.appendChild(div)
+        console.log(line)
+      }
+
+      // ── Environnement ─────────────────────────────────────────────
+      const standalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches
+      log(`UA: ${navigator.userAgent}`)
+      log(`Mode: ${standalone ? 'APPLICATION INSTALLÉE (standalone)' : 'onglet navigateur'}`)
+      log(`Origine: ${location.origin}`)
+      try { localStorage.setItem('t', '1'); log('localStorage: ok') } catch (e) { log('localStorage: INDISPONIBLE ' + e.name, 'ko') }
+      try { log(`Cookies activés: ${navigator.cookieEnabled}`) } catch {}
+
+      $('cid').value = (() => { try { return localStorage.getItem('spike-cid') || '' } catch { return '' } })()
+
+      function setStatus() {
+        const connected = !!token && Date.now() < tokenExpiresAt
+        const left = Math.max(0, Math.round((tokenExpiresAt - Date.now()) / 1000))
+        $('status').textContent = token
+          ? connected ? `Connecté — jeton valide encore ${Math.floor(left / 60)} min ${left % 60} s` : 'Jeton EXPIRÉ'
+          : 'Non connecté'
+        for (const id of ['btn-write', 'btn-read', 'btn-renew', 'btn-renew-auto', 'btn-delete']) $(id).disabled = !token
+      }
+      tick = setInterval(setStatus, 1000)
+
+      // ── Authentification (Google Identity Services, flux "jeton") ─
+      function ensureClient() {
+        const cid = $('cid').value.trim()
+        if (!cid) { log('Renseignez d’abord l’identifiant client.', 'ko'); return null }
+        try { localStorage.setItem('spike-cid', cid) } catch {}
+        if (!window.google || !google.accounts) { log('Le script Google n’est pas chargé (réseau ? bloqueur ?).', 'ko'); return null }
+        if (!client || client.cid !== cid) {
+          client = {
+            cid,
+            tc: google.accounts.oauth2.initTokenClient({
+              client_id: cid,
+              scope: SCOPE,
+              callback: onToken,
+              error_callback: (err) => log(`Erreur d’autorisation: type=${err.type} ${err.message || ''}`, 'ko'),
+            }),
+          }
+        }
+        return client.tc
+      }
+
+      let requestStartedAt = 0
+      let requestLabel = ''
+      function onToken(resp) {
+        const dur = ((performance.now() - requestStartedAt) / 1000).toFixed(1)
+        if (resp.error) { log(`${requestLabel}: ÉCHEC après ${dur} s — ${resp.error} ${resp.error_description || ''}`, 'ko'); return }
+        token = resp.access_token
+        tokenExpiresAt = Date.now() + Number(resp.expires_in) * 1000
+        log(`${requestLabel}: OK en ${dur} s — jeton ${token.slice(0, 6)}… valide ${resp.expires_in} s, portée accordée: ${resp.scope}`, 'ok')
+        if (!String(resp.scope).includes('drive.appdata')) log('ATTENTION: la portée drive.appdata n’a pas été accordée.', 'ko')
+        setStatus()
+      }
+
+      function request(label, opts) {
+        const tc = ensureClient()
+        if (!tc) return
+        requestLabel = label
+        requestStartedAt = performance.now()
+        log(`${label}: demande envoyée (${JSON.stringify(opts)})`)
+        try { tc.requestAccessToken(opts) } catch (e) { log(`${label}: exception ${e.message}`, 'ko') }
+      }
+
+      $('btn-connect').onclick = () => request('Connexion', { prompt: '' })
+      $('btn-renew').onclick = () => request('Renouvellement (avec geste)', { prompt: '' })
+      $('btn-renew-auto').onclick = () => {
+        log('Renouvellement SANS geste utilisateur programmé dans 5 s… ne touchez à rien.')
+        setTimeout(() => request('Renouvellement (sans geste)', { prompt: '' }), 5000)
+      }
+
+      // ── Drive (dossier privé de l'application) ────────────────────
+      async function api(label, url, init) {
+        const t0 = performance.now()
+        const res = await fetch(url, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init && init.headers) } })
+        const dur = Math.round(performance.now() - t0)
+        if (!res.ok) {
+          const body = await res.text()
+          log(`${label}: HTTP ${res.status} en ${dur} ms — ${body.slice(0, 300)}`, 'ko')
+          throw new Error(`HTTP ${res.status}`)
+        }
+        log(`${label}: HTTP ${res.status} en ${dur} ms`, 'ok')
+        return res
+      }
+
+      async function findFile() {
+        const q = encodeURIComponent(`name='${FILE_NAME}'`)
+        const res = await api('Recherche du fichier', `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id,name,modifiedTime,size)`)
+        const data = await res.json()
+        fileId = data.files && data.files[0] ? data.files[0].id : null
+        log(fileId ? `Fichier trouvé (id ${fileId.slice(0, 8)}…, modifié ${data.files[0].modifiedTime}, ${data.files[0].size} octets)` : 'Aucun fichier existant dans le dossier de l’application.')
+        return data.files && data.files[0]
+      }
+
+      $('btn-write').onclick = async () => {
+        try {
+          await findFile()
+          const content = JSON.stringify({ test: 'mytravels-sync-spike', writtenAt: new Date().toISOString(), standalone, ua: navigator.userAgent }, null, 2)
+          if (fileId) {
+            await api('Mise à jour', `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+              method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: content,
+            })
+          } else {
+            const boundary = 'spike' + Math.random().toString(16).slice(2)
+            const meta = JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'], mimeType: 'application/json' })
+            const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`
+            const res = await api('Création', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+              method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body,
+            })
+            fileId = (await res.json()).id
+          }
+          log('Écriture terminée.', 'ok')
+        } catch (e) { log(`Écriture interrompue: ${e.message}`, 'ko') }
+      }
+
+      $('btn-read').onclick = async () => {
+        try {
+          const f = await findFile()
+          if (!f) return
+          const res = await api('Lecture', `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`)
+          log('Contenu lu:\n' + (await res.text()), 'ok')
+        } catch (e) { log(`Lecture interrompue: ${e.message}`, 'ko') }
+      }
+
+      $('btn-delete').onclick = async () => {
+        try {
+          if (!(await findFile())) return
+          await api('Suppression', `https://www.googleapis.com/drive/v3/files/${fileId}`, { method: 'DELETE' })
+          fileId = null
+        } catch (e) { log(`Suppression interrompue: ${e.message}`, 'ko') }
+      }
+
+      $('btn-copy').onclick = async () => {
+        try { await navigator.clipboard.writeText(lines.join('\n')); log('Journal copié dans le presse-papiers.', 'ok') }
+        catch { log('Copie impossible : sélectionnez le texte du journal manuellement.', 'ko') }
+      }
+
+      setStatus()
+    </script>
+  </body>
+</html>
