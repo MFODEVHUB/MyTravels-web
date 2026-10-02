@@ -17,6 +17,8 @@ export interface CountryRecord {
   status: VisitStatus
   /** epoch ms */
   visitedAt?: number
+  /** Dernière modification (epoch ms), pour fusionner les appareils. Un statut NONE daté vaut suppression. */
+  updatedAt?: number
 }
 
 /** Villes et régions : conservées telles quelles pour que l'export reste fidèle au backup Android (lots suivants). */
@@ -28,6 +30,8 @@ export interface CityEntry {
 export interface RegionEntry {
   code: string
   status: string
+  /** Dernière modification (epoch ms) ; un statut NONE daté vaut suppression. */
+  updatedAt?: number
 }
 
 export interface AppState {

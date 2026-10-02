@@ -35,6 +35,8 @@ class Store {
   dark = $derived(this.prefs.theme === 'auto' ? this.systemDark : this.prefs.theme === 'dark')
 
   private saveTimer: ReturnType<typeof setTimeout> | undefined
+  /** Appelé après chaque modification faite par l'utilisateur (la synchronisation s'y branche). */
+  onChange: (() => void) | null = null
 
   async init() {
     const media = window.matchMedia('(prefers-color-scheme: dark)')
@@ -55,9 +57,11 @@ class Store {
     return this.state.countries[code]?.status ?? 'NONE'
   }
 
+  /** Une remise à "Non visité" est conservée, datée : c'est ce qui permet de la propager aux autres appareils. */
   setStatus(code: string, status: VisitStatus) {
-    if (status === 'NONE') delete this.state.countries[code]
-    else this.state.countries[code] = { status, visitedAt: this.state.countries[code]?.visitedAt }
+    const updatedAt = Date.now()
+    if (status === 'NONE') this.state.countries[code] = { status, updatedAt }
+    else this.state.countries[code] = { status, visitedAt: this.state.countries[code]?.visitedAt, updatedAt }
     this.changed()
   }
 
@@ -67,23 +71,35 @@ class Store {
 
   setRegionStatus(code: string, status: VisitStatus) {
     const i = this.state.regions.findIndex((r) => r.code === code)
-    if (status === 'NONE') {
-      if (i >= 0) this.state.regions.splice(i, 1)
-    } else if (i >= 0) this.state.regions[i] = { code, status }
-    else this.state.regions.push({ code, status })
+    const entry = { code, status, updatedAt: Date.now() }
+    if (i >= 0) this.state.regions[i] = entry
+    else this.state.regions.push(entry)
     this.changed()
   }
 
   setVisitedAt(code: string, visitedAt: number | undefined) {
     const rec = this.state.countries[code]
     if (!rec) return
-    this.state.countries[code] = { status: rec.status, visitedAt }
+    this.state.countries[code] = { status: rec.status, visitedAt, updatedAt: Date.now() }
     this.changed()
   }
 
   replaceAll(next: AppState) {
     this.state = next
     this.changed()
+  }
+
+  /** Copie détachée de l'état courant, utilisable hors réactivité (fusion, envoi). */
+  snapshot(): AppState {
+    return $state.snapshot(this.state) as AppState
+  }
+
+  /** Applique le résultat d'une synchronisation : enregistré en local, sans relancer une synchronisation. */
+  applySynced(next: AppState) {
+    this.state = next
+    this.rev++
+    clearTimeout(this.saveTimer)
+    this.saveTimer = setTimeout(() => void this.flush(), 200)
   }
 
   setLang(lang: Prefs['lang']) {
@@ -97,6 +113,7 @@ class Store {
   }
 
   private changed() {
+    this.onChange?.()
     this.rev++
     clearTimeout(this.saveTimer)
     this.saveTimer = setTimeout(() => void this.flush(), 200)

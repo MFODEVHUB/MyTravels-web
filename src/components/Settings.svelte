@@ -1,16 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import AndroidPromo from './AndroidPromo.svelte'
+  import ImportDialog from './ImportDialog.svelte'
+  import SyncCard from './SyncCard.svelte'
   import { BackupError, exportBackup, parseBackup } from '../lib/backup'
-  import { computeStats } from '../lib/stats'
+  import { applyImport, diffStates, type ImportMode } from '../lib/merge'
   import { store } from '../lib/store.svelte'
-  import { emptyState, type Lang, type ThemePref } from '../lib/types'
+  import { sync } from '../lib/sync.svelte'
+  import { emptyState, type AppState, type Lang, type ThemePref } from '../lib/types'
 
   const FEEDBACK_EMAIL = 'mfodevhub@gmail.com'
 
   let message = $state<{ text: string; error: boolean } | null>(null)
   let persisted = $state<boolean | null>(null)
   let fileInput: HTMLInputElement
+  let incoming = $state<AppState | null>(null)
 
   onMount(async () => {
     try {
@@ -45,19 +49,35 @@
     input.value = ''
     if (!file) return
     try {
-      const next = parseBackup(await file.text())
-      if (!confirm(store.t('settings.importConfirm'))) return
-      store.replaceAll(next)
-      message = { text: store.t('settings.imported', { n: computeStats(next).visitedCountries }), error: false }
+      incoming = parseBackup(await file.text())
+      message = null
     } catch (err) {
       const reason = err instanceof BackupError ? err.message : 'invalid-format'
       message = { text: store.t(`settings.importError.${reason}` as never), error: true }
     }
   }
 
+  function doImport(mode: ImportMode) {
+    if (!incoming) return
+    const before = store.snapshot()
+    const next = applyImport(before, incoming, mode, Date.now())
+    const diff = diffStates(before, next)
+    store.replaceAll(next)
+    incoming = null
+    message = {
+      text: store.t(mode === 'merge' ? 'settings.importedMerge' : 'settings.imported', {
+        n: mode === 'merge' ? diff.countries : Object.values(next.countries).filter((c) => c.status === 'VISITED').length,
+        m: diff.regions,
+      }),
+      error: false,
+    }
+  }
+
+  /** Effacer = importer du vide en mode "remplacer" : les suppressions sont datées, donc propagées par la sync. */
   function doReset() {
-    if (confirm(store.t('settings.resetConfirm'))) {
-      store.replaceAll(emptyState())
+    const text = sync.status === 'off' ? store.t('settings.resetConfirm') : store.t('settings.resetConfirmSync')
+    if (confirm(text)) {
+      store.replaceAll(applyImport(store.snapshot(), emptyState(), 'replace', Date.now()))
       message = null
     }
   }
@@ -78,6 +98,10 @@
   <h1>{store.t('settings.title')}</h1>
 
   <AndroidPromo />
+
+  {#if sync.available}
+    <SyncCard />
+  {/if}
 
   <section>
     <h2>{store.t('settings.language')}</h2>
@@ -127,6 +151,10 @@
     <p class="hint small version">{store.t('settings.version', { v: __APP_VERSION__ })}</p>
   </section>
 </div>
+
+{#if incoming}
+  <ImportDialog {incoming} onchoose={doImport} oncancel={() => (incoming = null)} />
+{/if}
 
 <style>
   .page {

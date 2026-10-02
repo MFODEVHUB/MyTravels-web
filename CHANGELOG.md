@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 — 2026-10-02
+
+Synchronisation Google Drive (web ↔ web), masquée au public tant que l'application Google n'est pas publiée.
+
+- Carte « Synchronisation » dans les Réglages : connexion Google, synchronisation à l'ouverture et après chaque modification, bouton « Synchroniser maintenant », déconnexion, suppression de la sauvegarde cloud
+- Les données sont stockées dans le dossier caché de l'application sur le Drive de l'utilisateur (accès limité à ce seul dossier)
+- Pastille d'état sur la carte (à jour, en cours, hors ligne, reconnexion) servant aussi de bouton « Reconnecter »
+- Fusion entre appareils par date de modification pour chaque pays et région ; les remises à « Non visité » se propagent
+- Import de sauvegarde : choix entre « Fusionner » et « Remplacer » ; « Effacer mes données » se propage aux appareils synchronisés
+- Fichier de sauvegarde toujours en format v3, lisible par l'app Android (champ `updatedAt` facultatif ajouté)
+- Activation pour les tests avec `?sync=1` dans l'adresse ; interrupteur `SYNC_PUBLIC` pour l'ouvrir à tous
+- Page de test technique `spike.html` (non liée à l'application)
+
 ## 0.1.4 — 2026-10-02
 
 - Numéro de version affiché dans les Réglages (section « À propos »), lu automatiquement depuis `package.json`

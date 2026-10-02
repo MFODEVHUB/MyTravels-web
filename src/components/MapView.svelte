@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { loadMap, MAP_H, MAP_W, type MapShape, type RegionShape } from '../lib/geo'
   import { store } from '../lib/store.svelte'
+  import SyncChip from './SyncChip.svelte'
   import { computeStats } from '../lib/stats'
   import { TERRITORY_BY_CODE, territoryName } from '../lib/territories'
   import type { Selection } from '../lib/types'
@@ -442,7 +443,10 @@
       <button class="btn" onclick={load}>{store.t('map.retry')}</button>
     </div>
   {:else}
-    <div class="badge">{store.t('map.visitedCount', { n: stats.visitedCountries })}</div>
+    <div class="top-left">
+      <div class="badge">{store.t('map.visitedCount', { n: stats.visitedCountries })}</div>
+      <SyncChip />
+    </div>
     <div class="modes" role="group">
       <button class:active={mode === 'countries'} aria-pressed={mode === 'countries'} onclick={() => (mode = 'countries')}>
         {store.t('map.viewCountries')}
@@ -509,10 +513,16 @@
       transform: rotate(360deg);
     }
   }
-  .badge {
+  .top-left {
     position: absolute;
     top: calc(12px + env(safe-area-inset-top));
     left: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .badge {
     padding: 6px 12px;
     border-radius: 999px;
     background: var(--surface);

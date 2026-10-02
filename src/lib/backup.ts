@@ -9,6 +9,10 @@ export class BackupError extends Error {}
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
+/**
+ * Le fichier reste en version 3, lisible par l'app Android qui ignore les champs qu'elle ne connaît pas :
+ * `updatedAt` (ajouté par la version web pour la synchronisation) est facultatif partout.
+ */
 export function exportBackup(state: AppState): string {
   const countries = TERRITORIES.map((t) => {
     const rec = state.countries[t.code]
@@ -16,6 +20,7 @@ export function exportBackup(state: AppState): string {
       code: t.code,
       status: rec?.status ?? 'NONE',
       ...(rec?.visitedAt != null ? { visitedAt: rec.visitedAt } : {}),
+      ...(rec?.updatedAt != null ? { updatedAt: rec.updatedAt } : {}),
     }
   })
   return JSON.stringify(
@@ -44,8 +49,14 @@ export function parseBackup(text: string): AppState {
     if (!TERRITORY_BY_CODE.has(item.code)) continue
     const status = toVisitStatus(item.status)
     const visitedAt = typeof item.visitedAt === 'number' && item.visitedAt >= 0 ? item.visitedAt : undefined
-    if (status === 'NONE' && visitedAt === undefined) continue
-    state.countries[item.code] = visitedAt === undefined ? { status } : { status, visitedAt }
+    const updatedAt = typeof item.updatedAt === 'number' ? item.updatedAt : undefined
+    // Un NONE sans date n'apporte rien ; avec une date, c'est une suppression à propager.
+    if (status === 'NONE' && visitedAt === undefined && updatedAt === undefined) continue
+    state.countries[item.code] = {
+      status,
+      ...(visitedAt !== undefined ? { visitedAt } : {}),
+      ...(updatedAt !== undefined ? { updatedAt } : {}),
+    }
   }
 
   state.cities = asArray(root.cities).flatMap((c): CityEntry[] =>
@@ -54,13 +65,15 @@ export function parseBackup(text: string): AppState {
       : [],
   )
 
-  // Comme côté Android : les régions "NONE" sont ignorées à l'import (v2+ uniquement).
+  // Comme côté Android, les régions "NONE" sont ignorées à l'import (v2+ uniquement), sauf si elles sont
+  // datées : c'est alors une suppression que la synchronisation doit propager.
   if (version >= 2) {
-    state.regions = asArray(root.regions).flatMap((r): RegionEntry[] =>
-      isObject(r) && typeof r.code === 'string' && r.status !== 'NONE'
-        ? [{ code: r.code, status: String(r.status) }]
-        : [],
-    )
+    state.regions = asArray(root.regions).flatMap((r): RegionEntry[] => {
+      if (!isObject(r) || typeof r.code !== 'string') return []
+      const updatedAt = typeof r.updatedAt === 'number' ? r.updatedAt : undefined
+      if (r.status === 'NONE' && updatedAt === undefined) return []
+      return [{ code: r.code, status: String(r.status), ...(updatedAt !== undefined ? { updatedAt } : {}) }]
+    })
   }
   return state
 }
@@ -74,7 +87,12 @@ export function sanitizeState(value: unknown): AppState {
       if (!TERRITORY_BY_CODE.has(code) || !isObject(rec)) continue
       const status = toVisitStatus(rec.status)
       const visitedAt = typeof rec.visitedAt === 'number' ? rec.visitedAt : undefined
-      state.countries[code] = visitedAt === undefined ? { status } : { status, visitedAt }
+      const updatedAt = typeof rec.updatedAt === 'number' ? rec.updatedAt : undefined
+      state.countries[code] = {
+        status,
+        ...(visitedAt !== undefined ? { visitedAt } : {}),
+        ...(updatedAt !== undefined ? { updatedAt } : {}),
+      }
     }
   }
   state.cities = asArray(value.cities).filter(

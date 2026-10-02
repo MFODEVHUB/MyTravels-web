@@ -5,6 +5,7 @@
   import MapView from './components/MapView.svelte'
   import Settings from './components/Settings.svelte'
   import { store } from './lib/store.svelte'
+  import { sync } from './lib/sync.svelte'
   import type { Selection } from './lib/types'
 
   type Tab = 'map' | 'countries' | 'settings'
@@ -29,7 +30,7 @@
   let tab = $state<Tab>('map')
   let selection = $state<Selection | null>(null)
 
-  onMount(() => void store.init())
+  onMount(() => void store.init().then(() => sync.init()))
 
   $effect(() => {
     document.documentElement.dataset.theme = store.dark ? 'dark' : 'light'
