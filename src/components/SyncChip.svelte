@@ -11,10 +11,25 @@
   const statusLabel = $derived(store.t(`sync.status.${sync.status}` as never))
   const lastSync = $derived(sync.lastSyncAt ? formatDateTime(sync.lastSyncAt, store.lang) : store.t('sync.never'))
 
-  function primary() {
+  /** Pas encore connecté : le picto invite à activer la synchronisation. */
+  const invite = $derived(sync.status === 'off' || (sync.status === 'connecting' && sync.lastSyncAt === null))
+  const connecting = $derived(sync.status === 'connecting' || sync.status === 'syncing')
+
+  // Fermer la fenêtre Google est un choix de l'utilisateur, pas une erreur à lui montrer.
+  const errorText = $derived(
+    sync.error && sync.error.detail !== 'popup_closed' ? store.t(`sync.error.${sync.error.kind}` as never, { detail: sync.error.detail }) : '',
+  )
+  const hintText = $derived(sync.error?.kind === 'auth' ? store.t('sync.authHint') : '')
+
+  async function primary() {
+    if (sync.status === 'off' || sync.status === 'needs-auth') {
+      // La fenêtre reste ouverte pendant la connexion pour pouvoir montrer une erreur ; elle se ferme en cas de succès.
+      await sync.connect()
+      if (sync.status !== 'off' && !sync.error) open = false
+      return
+    }
     open = false
-    if (sync.status === 'needs-auth') void sync.connect()
-    else void sync.syncNow()
+    void sync.syncNow()
   }
 
   function settings() {
@@ -25,7 +40,7 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
 
-{#if sync.status !== 'off'}
+{#if sync.available}
   <div class="wrap">
     <button
       class="chip"
@@ -33,10 +48,19 @@
       data-status={sync.status}
       aria-label="{store.t('sync.chip.label')} : {statusLabel}"
       aria-expanded={open}
-      onclick={() => (open = !open)}
+      onclick={() => {
+        // Une erreur de connexion passée ne doit pas réapparaître à la prochaine ouverture.
+        if (!open && sync.status === 'off') sync.error = null
+        open = !open
+      }}
     >
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-        {#if sync.status === 'syncing' || sync.status === 'connecting'}
+        {#if invite}
+          <path
+            fill="currentColor"
+            d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
+          />
+        {:else if sync.status === 'syncing' || sync.status === 'connecting'}
           <path
             class="spin"
             fill="currentColor"
@@ -67,16 +91,23 @@
     {#if open}
       <button class="backdrop" aria-label={store.t('sheet.close')} onclick={() => (open = false)}></button>
       <div class="popover" role="dialog" aria-label={store.t('sync.title')}>
-        <p class="state" data-status={sync.status}><span class="dot"></span>{statusLabel}</p>
-        <p class="meta">{store.t('sync.lastSync', { time: lastSync })}</p>
-        {#if sync.status === 'needs-auth'}
-          <p class="meta">{store.t('sync.reconnectHint')}</p>
+        {#if invite}
+          <p class="state"><span class="dot"></span>{store.t('sync.title')}</p>
+          <p class="meta">{store.t('sync.invite')}</p>
+        {:else}
+          <p class="state" data-status={sync.status}><span class="dot"></span>{statusLabel}</p>
+          <p class="meta">{store.t('sync.lastSync', { time: lastSync })}</p>
+          {#if sync.status === 'needs-auth'}
+            <p class="meta">{store.t('sync.reconnectHint')}</p>
+          {/if}
         {/if}
-        <button class="btn primary" disabled={sync.status === 'syncing' || sync.status === 'connecting'} onclick={primary}>
-          {sync.status === 'needs-auth' ? store.t('sync.reconnect') : store.t('sync.syncNow')}
+        {#if errorText}<p class="meta error" role="alert">{errorText}</p>{/if}
+        {#if hintText}<p class="meta">{hintText}</p>{/if}
+        <button class="btn primary" disabled={connecting} onclick={primary}>
+          {invite ? (connecting ? store.t('sync.connecting') : store.t('sync.connect')) : sync.status === 'needs-auth' ? store.t('sync.reconnect') : store.t('sync.syncNow')}
         </button>
         {#if onsettings}
-          <button class="link" onclick={settings}>{store.t('sync.openSettings')}</button>
+          <button class="link" onclick={settings}>{invite ? store.t('sync.learnMore') : store.t('sync.openSettings')}</button>
         {/if}
       </div>
     {/if}
@@ -107,6 +138,9 @@
   }
   .chip.expanded {
     padding: 0 14px 0 10px;
+  }
+  .chip[data-status='off'] {
+    color: var(--primary);
   }
   .chip[data-status='idle'] {
     color: var(--map-visited);
@@ -171,6 +205,10 @@
   [data-status='needs-auth'] .dot,
   [data-status='error'] .dot {
     background: var(--map-wishlist);
+  }
+  .meta.error {
+    color: var(--map-wishlist);
+    font-weight: 600;
   }
   .meta {
     margin: 0 0 10px;

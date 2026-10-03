@@ -92,14 +92,10 @@ export class SyncEngine {
     if (!prefs.enabled) return
     this.lastSyncAt = prefs.lastSyncAt ?? null
     this.status = 'needs-auth'
-    if (this.auth.hasToken()) return void this.syncNow()
-    // Tentative sans geste : réussit parfois, sinon l'utilisateur voit "Reconnecter".
-    try {
-      await this.auth.signIn(false)
-      await this.syncNow()
-    } catch {
-      this.status = 'needs-auth'
-    }
+    // Pas de reconnexion silencieuse au chargement : sans geste de l'utilisateur, le navigateur bloque la fenêtre
+    // Google, et s'il l'autorise elle surgirait de façon intempestive à chaque ouverture. L'utilisateur voit
+    // « Reconnecter » et un tap suffit.
+    if (this.auth.hasToken()) await this.syncNow()
   }
 
   /** Connexion demandée par l'utilisateur (geste), puis première synchronisation. */

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 — 2026-10-03
+
+- Le picto de synchronisation s'affiche aussi sur la carte quand la personne n'est pas encore connectée : un nuage avec une flèche, dont le tap ouvre une invitation à synchroniser (« Se connecter avec Google » et « En savoir plus »)
+- La connexion se fait depuis cette fenêtre, qui reste ouverte pendant la connexion et affiche l'erreur et le conseil en cas d'échec ; une ancienne erreur ne réapparaît pas à la réouverture
+- Plus de reconnexion silencieuse au chargement : elle ouvrait une fenêtre Google sans geste de l'utilisateur dans les navigateurs qui l'autorisent ; l'utilisateur voit « Reconnecter » et un tap suffit
+- Un visiteur non connecté ne charge plus rien de Google tant qu'il ne clique pas sur « Se connecter »
+
 ## 0.3.1 — 2026-10-03
 
 - La synchronisation Google Drive est ouverte à tous : la carte « Synchronisation » apparaît dans les Réglages sans réglage préalable (l'application Google est désormais en production)
