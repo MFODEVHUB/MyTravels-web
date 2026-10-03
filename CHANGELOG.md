@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 — 2026-10-03
+
+- La synchronisation Google Drive est ouverte à tous : la carte « Synchronisation » apparaît dans les Réglages sans réglage préalable (l'application Google est désormais en production)
+
 ## 0.3.0 — 2026-10-02
 
 - Onglet « Stats » dans la barre de navigation, comme dans l'application Android : tant que la page n'existe pas sur le web, il ouvre une fenêtre qui présente l'application Android et annonce sa prochaine disponibilité sur Google Play

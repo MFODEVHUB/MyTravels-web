@@ -15,11 +15,10 @@ export const playUrl = (medium: string): string =>
 export const PLAY_STORE_PUBLIC = false
 
 /**
- * Carte « Synchronisation » visible pour tout le monde. À passer à `true` une fois l'application publiée côté
- * Google (écran de consentement en production) : tant qu'il est en mode Test, seuls les utilisateurs test
- * peuvent se connecter. En attendant, on l'active pour soi avec `?sync=1` dans l'adresse (mémorisé).
+ * Carte « Synchronisation » proposée à tout le monde. L'application Google (écran de consentement) est en production.
+ * Repasser à `false` pour la masquer : elle reste alors activable pour soi avec `?sync=1` dans l'adresse (mémorisé).
  */
-export const SYNC_PUBLIC = false
+export const SYNC_PUBLIC = true
 
 /** Identifiant client OAuth (type Web) du projet Google Cloud ; public par nature, pas un secret. */
 export const GOOGLE_CLIENT_ID = '69838858611-idlecvf1pe2tl8sbcmivtmpftom4m0q1.apps.googleusercontent.com'

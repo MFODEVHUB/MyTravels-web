@@ -1,6 +1,6 @@
 # MyTravels Web
 
-![version](https://img.shields.io/badge/version-0.3.0-5c6bc0)
+![version](https://img.shields.io/badge/version-0.3.1-5c6bc0)
 
 🇫🇷 [Français](#français) · 🇬🇧 [English](#english)
 
@@ -19,7 +19,7 @@ Version web (PWA) de **MyTravels**, l'application Android de suivi de voyages. E
 - Statuts Visité / À visiter / Non visité, avec date de visite
 - Liste de 257 pays, îles et territoires, avec recherche sans accents et filtres
 - Import / export de sauvegarde, compatible avec l'app Android (format v1 à v3), avec fusion ou remplacement
-- Synchronisation entre appareils via Google Drive (dossier privé de l'application) — en cours de test, pas encore ouverte à tous
+- Synchronisation facultative entre appareils via Google Drive (dossier privé de l'application)
 - FR / EN, thème clair / sombre, installable et utilisable hors ligne
 
 À venir : stats et badges, villes, modes de partage, synchronisation avec l'app Android. Le détail de la couverture cartographique (îles intégrées à leur pays parent, niveaux de détail) évolue avec les lots.
@@ -53,7 +53,7 @@ Web (PWA) version of **MyTravels**, the Android travel tracker, for people witho
 - Visited / Want to go / Not visited statuses, with visit date
 - List of 257 countries, islands and territories, with accent-insensitive search and filters
 - Backup import / export, compatible with the Android app (formats v1 to v3), with merge or replace
-- Sync between devices through Google Drive (the app's private folder) — being tested, not open to everyone yet
+- Optional sync between devices through Google Drive (the app's private folder)
 - FR / EN, light / dark theme, installable and usable offline
 
 Coming next: stats and badges, cities, sharing modes, sync with the Android app. Map coverage details (islands merged into their parent country, levels of detail) will evolve with each batch.
