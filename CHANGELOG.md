@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 — 2026-10-03
+
+Page Stats, sur le modèle de l'application Android.
+
+- L'onglet « Stats » ouvre désormais une vraie page : un héros à trois pages (pays avec pourcentage du monde, continents avec le plus visité, États américains) et un bouton d'information sur le nombre de pays
+- Cartes par continent dépliables (Afrique, Amérique du Nord, Amérique du Sud, Asie, Europe, Océanie) : pays visités et à visiter, pourcentage et barre de progression, avec accès à la fiche de chaque pays
+- Section Régions : progression des États-Unis, de la Grèce et du Maroc ; section Villes quand une sauvegarde importée ou synchronisée en contient
+- État vide encourageant tant qu'aucun pays n'est marqué ; encart vers l'application Android pour les badges, l'historique et le mur de drapeaux
+- Mêmes règles de calcul que l'application Android (les îles et territoires ne comptent pas dans le total des pays)
+- L'ancienne fenêtre « bientôt sur Google Play » ouverte par l'onglet Stats est retirée
+
 ## 0.3.2 — 2026-10-03
 
 - Le picto de synchronisation s'affiche aussi sur la carte quand la personne n'est pas encore connectée : un nuage avec une flèche, dont le tap ouvre une invitation à synchroniser (« Se connecter avec Google » et « En savoir plus »)

@@ -70,7 +70,7 @@
 {/if}
 
 {#if open}
-  <AndroidSheet variant="promo" onclose={() => (open = false)} onnever={never} />
+  <AndroidSheet onclose={() => (open = false)} onnever={never} />
 {/if}
 
 <style>

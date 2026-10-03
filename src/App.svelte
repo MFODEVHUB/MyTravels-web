@@ -1,18 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import AndroidSheet from './components/AndroidSheet.svelte'
   import CountryList from './components/CountryList.svelte'
   import CountrySheet from './components/CountrySheet.svelte'
   import MapView from './components/MapView.svelte'
   import PromoPill from './components/PromoPill.svelte'
   import Settings from './components/Settings.svelte'
+  import StatsPage from './components/StatsPage.svelte'
   import { store } from './lib/store.svelte'
   import { sync } from './lib/sync.svelte'
   import type { Selection } from './lib/types'
 
-  type Tab = 'map' | 'countries' | 'settings'
-  /** « stats » n'est pas encore un écran : il ouvre une fenêtre qui présente l'application Android. */
-  const TABS: { id: Tab | 'stats'; label: () => string; icon: string }[] = [
+  type Tab = 'map' | 'countries' | 'stats' | 'settings'
+  const TABS: { id: Tab; label: () => string; icon: string }[] = [
     {
       id: 'map',
       label: () => store.t('nav.map'),
@@ -37,7 +36,6 @@
 
   let tab = $state<Tab>('map')
   let selection = $state<Selection | null>(null)
-  let statsOpen = $state(false)
 
   onMount(() => void store.init().then(() => sync.init()))
 
@@ -55,6 +53,8 @@
     <MapView {selection} onselect={(s) => (selection = s)} onsettings={() => (tab = 'settings')} />
   {:else if tab === 'countries'}
     <div class="scroll"><CountryList onselect={(code) => (selection = { country: code })} /></div>
+  {:else if tab === 'stats'}
+    <div class="scroll"><StatsPage onselect={(code) => (selection = { country: code })} /></div>
   {:else}
     <div class="scroll"><Settings /></div>
   {/if}
@@ -64,7 +64,7 @@
 
 <nav>
   {#each TABS as t (t.id)}
-    <button class:active={tab === t.id} aria-current={tab === t.id ? 'page' : undefined} onclick={() => (t.id === 'stats' ? (statsOpen = true) : (tab = t.id))}>
+    <button class:active={tab === t.id} aria-current={tab === t.id ? 'page' : undefined} onclick={() => (tab = t.id)}>
       <span class="icon">
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d={t.icon} fill="currentColor" /></svg>
         {#if t.id === 'settings' && sync.dot}<span class="dot {sync.dot}" aria-hidden="true"></span>{/if}
@@ -73,10 +73,6 @@
     </button>
   {/each}
 </nav>
-
-{#if statsOpen}
-  <AndroidSheet variant="stats" onclose={() => (statsOpen = false)} />
-{/if}
 
 {#if selection}
   <CountrySheet {selection} onclose={() => (selection = null)} />

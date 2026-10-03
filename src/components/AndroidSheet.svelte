@@ -4,15 +4,10 @@
   import { store } from '../lib/store.svelte'
   import { promoEnv } from '../lib/promoEnv'
 
-  let {
-    variant,
-    onclose,
-    onnever,
-  }: { variant: 'promo' | 'stats'; onclose: () => void; onnever?: () => void } = $props()
+  let { onclose, onnever }: { onclose: () => void; onnever?: () => void } = $props()
 
   const env = promoEnv()
-  const medium = $derived(variant === 'stats' ? 'stats' : env.device === 'desktop' ? 'qr' : 'pill')
-  const url = $derived(playUrl(medium))
+  const url = $derived(playUrl(env.device === 'desktop' ? 'qr' : 'pill'))
   /** Android : bouton direct ; ordinateur : QR code ; iPhone et autres : rien à installer. */
   const cta = $derived(!env.storePublic ? 'soon' : env.device === 'android' ? 'link' : env.device === 'desktop' ? 'qr' : 'none')
 
@@ -34,22 +29,18 @@
 <svelte:window onkeydown={(e) => e.key === 'Escape' && onclose()} />
 
 <div class="scrim" onclick={onScrim} role="presentation"></div>
-<div class="dialog" role="dialog" aria-modal="true" aria-label={variant === 'stats' ? store.t('stats.title') : store.t('promo.title')}>
+<div class="dialog" role="dialog" aria-modal="true" aria-label={store.t('promo.title')}>
   <div class="head">
     <img src="{import.meta.env.BASE_URL}icons/icon-192.png" alt="" width="52" height="52" />
-    <h2>{variant === 'stats' ? store.t('stats.title') : store.t('promo.title')}</h2>
+    <h2>{store.t('promo.title')}</h2>
   </div>
 
-  {#if variant === 'stats'}
-    <p class="text">{env.storePublic ? store.t('stats.teaserLive') : store.t('stats.teaser')}</p>
-  {:else}
-    <p class="text">{store.t('apk.intro')}</p>
-    <ul>
-      <li>{store.t('apk.points.badges')}</li>
-      <li>{store.t('apk.points.stats')}</li>
-      <li>{store.t('apk.points.share')}</li>
-    </ul>
-  {/if}
+  <p class="text">{store.t('apk.intro')}</p>
+  <ul>
+    <li>{store.t('apk.points.badges')}</li>
+    <li>{store.t('apk.points.stats')}</li>
+    <li>{store.t('apk.points.share')}</li>
+  </ul>
 
   {#if cta === 'link'}
     <a class="cta" href={url} target="_blank" rel="noopener">▶ {store.t('apk.install')}</a>
